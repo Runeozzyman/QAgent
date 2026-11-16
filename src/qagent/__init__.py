@@ -1,0 +1,3 @@
+"""QAgent: an autonomous QA agent for APIs."""
+
+__version__ = "0.1.0"

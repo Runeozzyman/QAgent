@@ -1,0 +1,79 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "Mini Bank", "version": "0.1.0"},
+  "security": [{"bearerAuth": []}],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "security": [],
+        "responses": {"200": {"description": "OK"}}
+      }
+    },
+    "/users/{id}": {
+      "parameters": [
+        {"name": "id", "in": "path", "required": true, "schema": {"type": "integer"}},
+        {"name": "X-Request-Id", "in": "header", "schema": {"type": "string"}, "description": "path level"}
+      ],
+      "get": {
+        "operationId": "getUser",
+        "parameters": [
+          {"name": "X-Request-Id", "in": "header", "required": true, "schema": {"type": "string", "format": "uuid"}, "description": "operation level"}
+        ],
+        "responses": {
+          "200": {
+            "description": "A user",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/User"}}}
+          },
+          "404": {"description": "Not found"}
+        }
+      },
+      "patch": {
+        "operationId": "updateUser",
+        "security": [{"bearerAuth": []}, {}],
+        "requestBody": {
+          "content": {
+            "application/merge-patch+json": {"schema": {"$ref": "#/components/schemas/UserPatch"}}
+          }
+        },
+        "responses": {"200": {"description": "Updated"}, "4XX": {"description": "Client error"}}
+      }
+    },
+    "/categories": {
+      "get": {
+        "operationId": "listCategories",
+        "responses": {
+          "200": {
+            "description": "Category tree",
+            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Category"}}}
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {"bearerAuth": {"type": "http", "scheme": "bearer"}},
+    "schemas": {
+      "User": {
+        "type": "object",
+        "required": ["id", "email"],
+        "properties": {
+          "id": {"type": "integer"},
+          "email": {"type": "string", "format": "email"},
+          "age": {"type": "integer", "minimum": 18}
+        }
+      },
+      "UserPatch": {
+        "type": "object",
+        "properties": {"email": {"$ref": "#/components/schemas/User/properties/email", "description": "New email"}}
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "children": {"type": "array", "items": {"$ref": "#/components/schemas/Category"}}
+        }
+      }
+    }
+  }
+}
